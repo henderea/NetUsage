@@ -13,18 +13,22 @@ namespace NetUsage
         public MainClass()
         {
             InitializeComponent();
-            histories = new Dictionary<string, History>(0);
-            history = new History(5);
-            activeAdapters = new Dictionary<string, bool>(0);
-            groups = new Dictionary<string, DisplayGroup>(0);
-            headers = new Dictionary<string, string>(0);
-            TopMost = Properties.Settings.Default.AlwaysOnTop;
-            aotItem.Checked = Properties.Settings.Default.AlwaysOnTop;
-            Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
-            transparentItem.Checked = Properties.Settings.Default.Transparent;
-            Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
-            notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
-            updateTimer.Start();
+            try
+            {
+                histories = new Dictionary<string, History>(0);
+                history = new History(5);
+                activeAdapters = new Dictionary<string, bool>(0);
+                groups = new Dictionary<string, DisplayGroup>(0);
+                headers = new Dictionary<string, string>(0);
+                TopMost = Properties.Settings.Default.AlwaysOnTop;
+                aotItem.Checked = Properties.Settings.Default.AlwaysOnTop;
+                Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
+                transparentItem.Checked = Properties.Settings.Default.Transparent;
+                Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
+                updateTimer.Start();
+                notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
+            }
+            catch {}
         }
 
         private readonly Dictionary<string, History> histories;
@@ -35,39 +39,47 @@ namespace NetUsage
 
         private void UpdateInfo()
         {
-            if (activeAdapters.Count > 0)
+            try
             {
-                List<string> keys = new List<string>(activeAdapters.Keys);
-                foreach (string key in keys)
+                if (activeAdapters.Count > 0)
                 {
-                    activeAdapters[key] = false;
+                    List<string> keys = new List<string>(activeAdapters.Keys);
+                    foreach (string key in keys)
+                    {
+                        activeAdapters[key] = false;
+                    }
                 }
+                if (!NetworkInterface.GetIsNetworkAvailable())
+                    return;
+                NetworkInterface[] nis = NetworkInterface.GetAllNetworkInterfaces();
+                DateTime cur = DateTime.Now;
+                long brt = 0;
+                long bst = 0;
+                foreach (NetworkInterface ni in nis)
+                {
+                    try
+                    {
+                        if (ni.OperationalStatus != OperationalStatus.Up || ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                        string ip = "";
+                        UnicastIPAddressInformationCollection ua = ni.GetIPProperties().UnicastAddresses;
+                        if (ua.Count > 0)
+                            ip = "; " + ua[0].Address;
+                        headers[ni.Id] = ni.Name + " (" + ni.NetworkInterfaceType + ip + ")";
+                        IPv4InterfaceStatistics st = ni.GetIPv4Statistics();
+                        long br = st.BytesReceived;
+                        long bs = st.BytesSent;
+                        brt += br;
+                        bst += bs;
+                        if (!histories.ContainsKey(ni.Id))
+                            histories[ni.Id] = new History();
+                        histories[ni.Id].Add(cur, br, bs);
+                        activeAdapters[ni.Id] = true;
+                    }
+                    catch {}
+                }
+                history.Add(cur, brt, bst);
             }
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                return;
-            NetworkInterface[] nis = NetworkInterface.GetAllNetworkInterfaces();
-            DateTime cur = DateTime.Now;
-            long brt = 0;
-            long bst = 0;
-            foreach(NetworkInterface ni in nis)
-            {
-                if (ni.OperationalStatus != OperationalStatus.Up || ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
-                string ip = "";
-                UnicastIPAddressInformationCollection ua = ni.GetIPProperties().UnicastAddresses;
-                if (ua.Count > 0)
-                    ip = "; "+ua[0].Address;
-                headers[ni.Id] = ni.Name + " (" + ni.NetworkInterfaceType + ip+")";
-                IPv4InterfaceStatistics st = ni.GetIPv4Statistics();
-                long br = st.BytesReceived;
-                long bs = st.BytesSent;
-                brt += br;
-                bst += bs;
-                if(!histories.ContainsKey(ni.Id))
-                    histories[ni.Id] = new History();
-                histories[ni.Id].Add(cur, br, bs);
-                activeAdapters[ni.Id] = true;
-            }
-            history.Add(cur, brt, bst);
+            catch {}
         }
 
         private static readonly string[] sizeEndings = new[] { "B", "KB", "MB", "GB", "TB" };
@@ -86,32 +98,40 @@ namespace NetUsage
 
         private void UpdateWindow()
         {
-            if(activeAdapters.Count <= 0)
+            try
             {
-                displayLabel.Visible = true;
-                return;
-            }
-            List<string> keys = new List<string>(activeAdapters.Keys);
-            keys.Sort();
-            bool hasActiveAdapter = false;
-            int y = 0;
-            foreach(string key in keys)
-            {
-                if(!groups.ContainsKey(key))
+                if (activeAdapters.Count <= 0)
                 {
-                    groups[key] = new DisplayGroup();
-                    Controls.Add(groups[key]);
+                    displayLabel.Visible = true;
+                    return;
                 }
-                groups[key].Visible = activeAdapters[key];
-                if(!activeAdapters[key]) continue;
-                hasActiveAdapter = true;
-                groups[key].DisplayData(headers[key], histories[key]);
-                groups[key].Location = new Point(0, y);
-                y += groups[key].Height;
+                List<string> keys = new List<string>(activeAdapters.Keys);
+                keys.Sort();
+                bool hasActiveAdapter = false;
+                int y = 0;
+                foreach (string key in keys)
+                {
+                    try
+                    {
+                        if (!groups.ContainsKey(key))
+                        {
+                            groups[key] = new DisplayGroup();
+                            Controls.Add(groups[key]);
+                        }
+                        groups[key].Visible = activeAdapters[key];
+                        if (!activeAdapters[key]) continue;
+                        hasActiveAdapter = true;
+                        groups[key].DisplayData(headers[key], histories[key]);
+                        groups[key].Location = new Point(0, y);
+                        y += groups[key].Height;
+                    }
+                    catch {}
+                }
+                displayLabel.Visible = !hasActiveAdapter;
+                Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
+                notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
             }
-            displayLabel.Visible = !hasActiveAdapter;
-            Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
-            notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
+            catch {}
         }
 
         private void updateTimer_Tick(object sender, EventArgs e)
