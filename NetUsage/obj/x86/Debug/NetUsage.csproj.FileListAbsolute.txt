@@ -1,0 +1,11 @@
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\bin\Debug\NetUsage.exe
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\bin\Debug\NetUsage.pdb
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\NetUsage.MainClass.resources
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\NetUsage.Properties.Resources.resources
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\NetUsage.exe
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\NetUsage.pdb
+C:\Users\henderea\Documents\Visual Studio 2010\Projects\NetUsage\NetUsage\obj\x86\Debug\NetUsage.DisplayGroup.resources
+C:\Users\henderea\documents\visual studio 2010\Projects\NetUsage\NetUsage\bin\Debug\NetUsage.exe.config
