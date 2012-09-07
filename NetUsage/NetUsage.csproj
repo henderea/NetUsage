@@ -94,10 +94,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graph\" />
-    <Folder Include="History\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="newIcon3.ico" />
   </ItemGroup>
