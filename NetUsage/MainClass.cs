@@ -101,8 +101,8 @@ namespace NetUsage
 
         private void UpdateWindow()
         {
-            //try
-            //{
+            try
+            {
                 if (activeAdapters.Count <= 0)
                 {
                     displayLabel.Visible = true;
@@ -132,9 +132,13 @@ namespace NetUsage
                 }
                 displayLabel.Visible = !hasActiveAdapter;
                 Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
-                notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
-            //}
-            //catch {}
+                Bitmap b = Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3);
+                Icon i = Icon.FromHandle(b.GetHicon());
+                notifyIcon.Icon = i;
+                Win32.DestroyIcon(i.Handle);
+                b.Dispose();
+            }
+            catch {}
             UpdateImage();
         }
 
@@ -149,67 +153,10 @@ namespace NetUsage
             Application.Exit();
         }
 
-        /*// P/Invoke constants
-        private const int WM_SYSCOMMAND = 0x112;
-        private const int MF_BYPOSITION = 0x400;
-        private const int MF_STRING = 0x0;
-        private const int MF_CHECK = 0x8;
-        private const int MF_SEPARATOR = 0x800;
-
-        // P/Invoke declarations
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool InsertMenu(IntPtr hMenu, int uPosition, int uFlags, int uIDNewItem, string lpNewItem);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool ModifyMenu(IntPtr hMenu, int uPosition, int uFlags, int uIDNewItem, string lpNewItem);
-
-
-        private const int SYSMENU_AOT_ID = 0x1;
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-
-            // Get a handle to a copy of this form's system (window) menu
-            IntPtr hSysMenu = GetSystemMenu(Handle, false);
-
-            int mopt = MF_STRING | MF_BYPOSITION;
-            if (Properties.Settings.Default.AlwaysOnTop)
-                mopt |= MF_CHECK;
-
-            // Add the menu item
-            InsertMenu(hSysMenu, 0, mopt, SYSMENU_AOT_ID, "&Always On Top");
-
-            // Add a separator
-            InsertMenu(hSysMenu, 1, MF_SEPARATOR | MF_BYPOSITION, 0, string.Empty);
-        }*/
-
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
 
-            // Test if the About item was selected from the system menu
-            /*if ((m.Msg == WM_SYSCOMMAND) && ((int)m.WParam == SYSMENU_AOT_ID))
-            {
-                Properties.Settings.Default.AlwaysOnTop = !Properties.Settings.Default.AlwaysOnTop;
-                Properties.Settings.Default.Save();
-
-                TopMost = Properties.Settings.Default.AlwaysOnTop;
-                aotItem.Checked = Properties.Settings.Default.AlwaysOnTop;
-
-                // Get a handle to a copy of this form's system (window) menu
-                IntPtr hSysMenu = GetSystemMenu(Handle, false);
-
-                int mopt = MF_STRING | MF_BYPOSITION;
-                if (Properties.Settings.Default.AlwaysOnTop)
-                    mopt |= MF_CHECK;
-
-                // Add the menu item
-                ModifyMenu(hSysMenu, 0, mopt, SYSMENU_AOT_ID, "&Always On Top");
-            }*/
             if (m.Msg == WindowsShell.WM_HOTKEY)
             {
                 Visible = !Visible;
@@ -246,18 +193,7 @@ namespace NetUsage
         {
             Properties.Settings.Default.AlwaysOnTop = aotItem.Checked;
             Properties.Settings.Default.Save();
-
             TopMost = Properties.Settings.Default.AlwaysOnTop;
-
-            /*// Get a handle to a copy of this form's system (window) menu
-            IntPtr hSysMenu = GetSystemMenu(Handle, false);
-
-            int mopt = MF_STRING | MF_BYPOSITION;
-            if (Properties.Settings.Default.AlwaysOnTop)
-                mopt |= MF_CHECK;
-
-            // Add the menu item
-            ModifyMenu(hSysMenu, 0, mopt, SYSMENU_AOT_ID, "&Always On Top");*/
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
@@ -301,7 +237,6 @@ namespace NetUsage
                 {
                     Properties.Settings.Default.Transparent = !Properties.Settings.Default.Transparent;
                     Properties.Settings.Default.Save();
-                    //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
                     transparentItem.Checked = Properties.Settings.Default.Transparent;
                 }
             }
@@ -311,7 +246,6 @@ namespace NetUsage
         {
             Properties.Settings.Default.Transparent = transparentItem.Checked;
             Properties.Settings.Default.Save();
-            //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
         }
 
         private void MainClass_Shown(object sender, EventArgs e)
@@ -347,8 +281,10 @@ namespace NetUsage
             g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             g2.Clear(Color.FromArgb(Properties.Settings.Default.Transparent ? 190 : 255, Color.White));
             g2.DrawImage(temp_bmp, 0, 0);
+            temp_bmp.Dispose();
             SetBitmap(img);
             Invalidate(new Rectangle(new Point(0, 0), Size), false);
+            img.Dispose();
         }
 
         public void SetBitmap(Bitmap bitmap)
@@ -530,6 +466,9 @@ namespace NetUsage
 
         [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
         public static extern Bool DeleteObject(IntPtr hObject);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern Bool DestroyIcon(IntPtr handle);
     }
 }
 // ReSharper restore InconsistentNaming

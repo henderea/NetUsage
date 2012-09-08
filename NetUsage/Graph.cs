@@ -43,6 +43,9 @@ namespace NetUsage
             }
             g.DrawLines(incomingPen, pointsR.ToArray());
             g.DrawLines(outgoingPen, pointsS.ToArray());
+            incomingPen.Dispose();
+            outgoingPen.Dispose();
+            g.Dispose();
             return img;
         }
     }

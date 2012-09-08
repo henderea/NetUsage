@@ -30,7 +30,9 @@ namespace NetUsage
             str += "Received: " + MainClass.FormatSizestr(history.Empty ? 0 : history.Current.Received) + "\n";
             str += "Sent:     " + MainClass.FormatSizestr(history.Empty ? 0 : history.Current.Sent);
             displayLabelFooter.Text = str;
+            Image i = displayImage.Image;
             displayImage.Image = Graph.GraphSpeeds(diff, (int)(SCALE*(displayImage.Width - 10)), (int)(SCALE*(displayImage.Height - 10)), Color.LimeGreen, Color.Red, Color.Black, 3);
+            i.Dispose();
         }
     }
 }
