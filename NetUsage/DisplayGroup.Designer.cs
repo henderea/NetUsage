@@ -41,7 +41,7 @@
             // displayLabelHeader
             // 
             this.displayLabelHeader.AutoSize = true;
-            this.displayLabelHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.displayLabelHeader.BackColor = System.Drawing.Color.LightGray;
             this.displayLabelHeader.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.displayLabelHeader.Location = new System.Drawing.Point(0, 60);
             this.displayLabelHeader.Name = "displayLabelHeader";
@@ -52,9 +52,10 @@
             // 
             // displayImage
             // 
-            this.displayImage.BackColor = System.Drawing.SystemColors.Control;
+            this.displayImage.BackColor = System.Drawing.Color.LightGray;
             this.displayImage.Dock = System.Windows.Forms.DockStyle.Top;
             this.displayImage.Location = new System.Drawing.Point(0, 0);
+            this.displayImage.Margin = new System.Windows.Forms.Padding(0);
             this.displayImage.Name = "displayImage";
             this.displayImage.Padding = new System.Windows.Forms.Padding(5);
             this.displayImage.Size = new System.Drawing.Size(146, 60);
@@ -65,7 +66,7 @@
             // displayLabelIncoming
             // 
             this.displayLabelIncoming.AutoSize = true;
-            this.displayLabelIncoming.BackColor = System.Drawing.SystemColors.Control;
+            this.displayLabelIncoming.BackColor = System.Drawing.Color.LightGray;
             this.displayLabelIncoming.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.displayLabelIncoming.ForeColor = System.Drawing.Color.LimeGreen;
             this.displayLabelIncoming.Location = new System.Drawing.Point(75, 90);
@@ -78,7 +79,7 @@
             // displayLabelOutgoing
             // 
             this.displayLabelOutgoing.AutoSize = true;
-            this.displayLabelOutgoing.BackColor = System.Drawing.SystemColors.Control;
+            this.displayLabelOutgoing.BackColor = System.Drawing.Color.LightGray;
             this.displayLabelOutgoing.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.displayLabelOutgoing.ForeColor = System.Drawing.Color.Red;
             this.displayLabelOutgoing.Location = new System.Drawing.Point(75, 105);
@@ -91,7 +92,7 @@
             // displayLabelFooter
             // 
             this.displayLabelFooter.AutoSize = true;
-            this.displayLabelFooter.BackColor = System.Drawing.SystemColors.Control;
+            this.displayLabelFooter.BackColor = System.Drawing.Color.LightGray;
             this.displayLabelFooter.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.displayLabelFooter.Location = new System.Drawing.Point(0, 125);
             this.displayLabelFooter.Name = "displayLabelFooter";
@@ -103,7 +104,7 @@
             // incomingLabel
             // 
             this.incomingLabel.AutoSize = true;
-            this.incomingLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.incomingLabel.BackColor = System.Drawing.Color.LightGray;
             this.incomingLabel.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.incomingLabel.Location = new System.Drawing.Point(0, 90);
             this.incomingLabel.Name = "incomingLabel";
@@ -115,7 +116,7 @@
             // outgoingLabel
             // 
             this.outgoingLabel.AutoSize = true;
-            this.outgoingLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.outgoingLabel.BackColor = System.Drawing.Color.LightGray;
             this.outgoingLabel.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.outgoingLabel.Location = new System.Drawing.Point(0, 105);
             this.outgoingLabel.Name = "outgoingLabel";
@@ -130,7 +131,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.SystemColors.Control;
+            this.BackColor = System.Drawing.Color.LightGray;
             this.Controls.Add(this.outgoingLabel);
             this.Controls.Add(this.incomingLabel);
             this.Controls.Add(this.displayLabelFooter);

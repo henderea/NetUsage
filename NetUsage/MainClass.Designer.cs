@@ -44,7 +44,7 @@
             // displayLabel
             // 
             this.displayLabel.AutoSize = true;
-            this.displayLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.displayLabel.BackColor = System.Drawing.Color.LightGray;
             this.displayLabel.Location = new System.Drawing.Point(0, 0);
             this.displayLabel.Name = "displayLabel";
             this.displayLabel.Padding = new System.Windows.Forms.Padding(5);
@@ -122,14 +122,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackColor = System.Drawing.SystemColors.Control;
+            this.BackColor = System.Drawing.Color.LightGray;
             this.ClientSize = new System.Drawing.Size(300, 300);
             this.Controls.Add(this.displayLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "MainClass";
-            this.Opacity = 0.75D;
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;

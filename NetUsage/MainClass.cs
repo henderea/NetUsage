@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -22,7 +25,7 @@ namespace NetUsage
                 headers = new Dictionary<string, string>(0);
                 TopMost = Properties.Settings.Default.AlwaysOnTop;
                 aotItem.Checked = Properties.Settings.Default.AlwaysOnTop;
-                Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
+                //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
                 transparentItem.Checked = Properties.Settings.Default.Transparent;
                 Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
                 updateTimer.Start();
@@ -98,8 +101,8 @@ namespace NetUsage
 
         private void UpdateWindow()
         {
-            try
-            {
+            //try
+            //{
                 if (activeAdapters.Count <= 0)
                 {
                     displayLabel.Visible = true;
@@ -130,8 +133,9 @@ namespace NetUsage
                 displayLabel.Visible = !hasActiveAdapter;
                 Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
                 notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
-            }
-            catch {}
+            //}
+            //catch {}
+            UpdateImage();
         }
 
         private void updateTimer_Tick(object sender, EventArgs e)
@@ -258,6 +262,7 @@ namespace NetUsage
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
         {
+            if (e.Button != MouseButtons.Left) return;
             Visible = !Visible;
             if (Visible)
             {
@@ -296,7 +301,7 @@ namespace NetUsage
                 {
                     Properties.Settings.Default.Transparent = !Properties.Settings.Default.Transparent;
                     Properties.Settings.Default.Save();
-                    Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
+                    //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
                     transparentItem.Checked = Properties.Settings.Default.Transparent;
                 }
             }
@@ -306,13 +311,93 @@ namespace NetUsage
         {
             Properties.Settings.Default.Transparent = transparentItem.Checked;
             Properties.Settings.Default.Save();
-            Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
+            //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
         }
 
         private void MainClass_Shown(object sender, EventArgs e)
         {
             BringToFront();
             Activate();
+        }
+
+        public void UpdateImage()
+        {
+            if (!Visible) return;
+            Bitmap temp_bmp = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            Graphics g = Graphics.FromImage(temp_bmp);
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.InterpolationMode = InterpolationMode.High;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            g.Clear(Color.LightGray);
+            Rectangle b = new Rectangle(0, 0, Width, Height);
+            foreach (Control ctrl in Controls)
+            {
+                if (Visible && ctrl.Visible && b.Contains(ctrl.Bounds))
+                    ctrl.DrawToBitmap(temp_bmp, ctrl.Bounds);
+            }
+            temp_bmp.MakeTransparent();
+            Bitmap img = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            Graphics g2 = Graphics.FromImage(img);
+            g2.CompositingQuality = CompositingQuality.HighQuality;
+            g2.InterpolationMode = InterpolationMode.High;
+            g2.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g2.SmoothingMode = SmoothingMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            g2.Clear(Color.FromArgb(Properties.Settings.Default.Transparent ? 190 : 255, Color.White));
+            g2.DrawImage(temp_bmp, 0, 0);
+            SetBitmap(img);
+            Invalidate(new Rectangle(new Point(0, 0), Size), false);
+        }
+
+        public void SetBitmap(Bitmap bitmap)
+        {
+            SetBitmap(bitmap, 255);
+        }
+
+        public void SetBitmap(Bitmap bitmap, byte opacity)
+        {
+            if (bitmap.PixelFormat != PixelFormat.Format32bppArgb)
+                throw new ApplicationException("The bitmap must be 32ppp with alpha-channel.");
+            IntPtr screenDc = Win32.GetDC(IntPtr.Zero);
+            IntPtr memDc = Win32.CreateCompatibleDC(screenDc);
+            IntPtr hBitmap = IntPtr.Zero;
+            IntPtr oldBitmap = IntPtr.Zero;
+            try
+            {
+                hBitmap = bitmap.GetHbitmap(Color.FromArgb(0));
+                oldBitmap = Win32.SelectObject(memDc, hBitmap);
+                Win32.Size size = new Win32.Size(bitmap.Width, bitmap.Height);
+                Win32.Point pointSource = new Win32.Point(0, 0);
+                Win32.Point topPos = new Win32.Point(Left, Top);
+                Win32.BLENDFUNCTION blend = new Win32.BLENDFUNCTION();
+                blend.BlendOp = Win32.AC_SRC_OVER;
+                blend.BlendFlags = 0;
+                blend.SourceConstantAlpha = opacity;
+                blend.AlphaFormat = Win32.AC_SRC_ALPHA;
+                Win32.UpdateLayeredWindow(Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend, Win32.ULW_ALPHA);
+            }
+            finally
+            {
+                Win32.ReleaseDC(IntPtr.Zero, screenDc);
+                if (hBitmap != IntPtr.Zero)
+                {
+                    Win32.SelectObject(memDc, oldBitmap);
+                    Win32.DeleteObject(hBitmap);
+                }
+                Win32.DeleteDC(memDc);
+            }
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x00080000;
+                return cp;
+            }
         }
     }
 
@@ -360,6 +445,91 @@ namespace NetUsage
                 MessageBox.Show(ex.ToString());
             }
         }
+    }
+
+    class Win32
+    {
+        public enum Bool
+        {
+            False = 0,
+            True
+        };
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Point
+        {
+            public Int32 x;
+            public Int32 y;
+
+            public Point(Int32 x, Int32 y) { this.x = x; this.y = y; }
+        }
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Size
+        {
+            public Int32 cx;
+            public Int32 cy;
+
+            public Size(Int32 cx, Int32 cy) { this.cx = cx; this.cy = cy; }
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        // ReSharper disable UnusedMember.Local
+        struct ARGB
+        // ReSharper restore UnusedMember.Local
+        {
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
+            // ReSharper disable MemberCanBePrivate.Local
+            public byte Blue;
+            public byte Green;
+            public byte Red;
+            public byte Alpha;
+            // ReSharper restore MemberCanBePrivate.Local
+            // ReSharper restore FieldCanBeMadeReadOnly.Local
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct BLENDFUNCTION
+        {
+            public byte BlendOp;
+            public byte BlendFlags;
+            public byte SourceConstantAlpha;
+            public byte AlphaFormat;
+        }
+
+
+        public const Int32 ULW_COLORKEY = 0x00000001;
+        public const Int32 ULW_ALPHA = 0x00000002;
+        public const Int32 ULW_OPAQUE = 0x00000004;
+
+        public const byte AC_SRC_OVER = 0x00;
+        public const byte AC_SRC_ALPHA = 0x01;
+
+
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern Bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, ref Point pptDst, ref Size psize, IntPtr hdcSrc, ref Point pprSrc, Int32 crKey, ref BLENDFUNCTION pblend, Int32 dwFlags);
+
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr GetDC(IntPtr hWnd);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+
+        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern Bool DeleteDC(IntPtr hdc);
+
+        [DllImport("gdi32.dll", ExactSpelling = true)]
+        public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+
+        [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
+        public static extern Bool DeleteObject(IntPtr hObject);
     }
 }
 // ReSharper restore InconsistentNaming
