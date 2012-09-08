@@ -76,7 +76,7 @@
             this.contextMenu.Name = "contextMenu";
             this.contextMenu.ShowCheckMargin = true;
             this.contextMenu.ShowImageMargin = false;
-            this.contextMenu.Size = new System.Drawing.Size(240, 92);
+            this.contextMenu.Size = new System.Drawing.Size(240, 114);
             // 
             // hideShowItem
             // 
@@ -94,6 +94,7 @@
             this.aotItem.CheckOnClick = true;
             this.aotItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.aotItem.Name = "aotItem";
+            this.aotItem.ShortcutKeyDisplayString = "Ctrl+A";
             this.aotItem.Size = new System.Drawing.Size(239, 22);
             this.aotItem.Text = "Always On Top";
             this.aotItem.CheckedChanged += new System.EventHandler(this.aotItem_CheckedChanged);
@@ -104,6 +105,7 @@
             this.transparentItem.CheckOnClick = true;
             this.transparentItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.transparentItem.Name = "transparentItem";
+            this.transparentItem.ShortcutKeyDisplayString = "Ctrl+T";
             this.transparentItem.Size = new System.Drawing.Size(239, 22);
             this.transparentItem.Text = "Transparent";
             this.transparentItem.CheckedChanged += new System.EventHandler(this.transparentItem_CheckedChanged);
@@ -112,6 +114,7 @@
             // 
             this.exitItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.exitItem.Name = "exitItem";
+            this.exitItem.ShortcutKeyDisplayString = "Shift+Esc";
             this.exitItem.Size = new System.Drawing.Size(239, 22);
             this.exitItem.Text = "Exit";
             this.exitItem.Click += new System.EventHandler(this.exitItem_Click);

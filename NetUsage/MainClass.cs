@@ -25,11 +25,14 @@ namespace NetUsage
                 headers = new Dictionary<string, string>(0);
                 TopMost = Properties.Settings.Default.AlwaysOnTop;
                 aotItem.Checked = Properties.Settings.Default.AlwaysOnTop;
-                //Opacity = Properties.Settings.Default.Transparent ? 0.75 : 1;
                 transparentItem.Checked = Properties.Settings.Default.Transparent;
                 Location = new Point(Screen.PrimaryScreen.WorkingArea.Right - Width, Screen.PrimaryScreen.WorkingArea.Bottom - Height);
                 updateTimer.Start();
-                notifyIcon.Icon = Icon.FromHandle(Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3).GetHicon());
+                Bitmap b = Graph.GraphSpeeds(history.Diff(), 100, 100, Color.LimeGreen, Color.Red, Color.Black, 3);
+                Icon i = Icon.FromHandle(b.GetHicon());
+                notifyIcon.Icon = i;
+                Win32.DestroyIcon(i.Handle);
+                b.Dispose();
             }
             catch {}
         }
@@ -156,7 +159,6 @@ namespace NetUsage
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-
             if (m.Msg == WindowsShell.WM_HOTKEY)
             {
                 Visible = !Visible;
