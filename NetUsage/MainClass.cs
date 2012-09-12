@@ -65,7 +65,7 @@ namespace NetUsage
                 {
                     try
                     {
-                        if (ni.OperationalStatus != OperationalStatus.Up || ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+                        if (ni.OperationalStatus != OperationalStatus.Up || ni.NetworkInterfaceType == NetworkInterfaceType.Loopback || ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel) continue;
                         string ip = "";
                         UnicastIPAddressInformationCollection ua = ni.GetIPProperties().UnicastAddresses;
                         if (ua.Count > 0)
